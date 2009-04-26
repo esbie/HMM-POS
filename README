@@ -1,0 +1,7 @@
+HMMs FTW
+
+Possible HMM implementation considerations:
+
+Bigram or Trigram HMM model
+Smoothing (backoff?)
+Viterbi Algorithm
