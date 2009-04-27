@@ -9,7 +9,7 @@ public class HMMParser {
     
     public static void main(String[] args){
         HMMParser p = new HMMParser("data/test.pos");
-        p.parse();        
+        p.parseTrainer();        
     }
     
     Scanner scanner;
@@ -28,7 +28,7 @@ public class HMMParser {
         }
     }
     
-    public void parse(){
+    public void parseTrainer(){
         String prevTag = scanner.next();
         scanner.next();
        
