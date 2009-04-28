@@ -1,6 +1,7 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -17,6 +18,7 @@ public class HMMParser {
     HashMap<String, Integer> tagCounts = new HashMap<String, Integer>();
     HashMap<String, HashMap<String, Integer>> wordCounts = new HashMap<String, HashMap<String,Integer>>();
     HashMap<String, HashMap<String, Integer>> tagBigramCounts = new HashMap<String, HashMap<String,Integer>>();
+    HashMap<String, HashMap<String, Integer>> tagForWordCounts = new HashMap<String, HashMap<String, Integer>>();
     
     
     public HMMParser(String filename){
@@ -39,9 +41,19 @@ public class HMMParser {
             addOne(tagCounts, currentTag);
             addOne(wordCounts, currentTag, currentWord);
             addOne(tagBigramCounts, prevTag, currentTag);
+            addOne(tagForWordCounts, currentWord, currentTag);
             
             prevTag = currentTag;
         }
+    }
+    
+    public ArrayList<String> wordSequence(){
+        ArrayList<String> list = new ArrayList<String>();
+        while (scanner.hasNext()){
+            scanner.next();
+            list.add(scanner.next());
+        }
+        return list;
     }
     
     private void addOne(HashMap<String, Integer> map, String key1){
