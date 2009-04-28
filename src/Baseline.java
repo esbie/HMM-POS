@@ -1,9 +1,18 @@
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 public class Baseline
 {
     public static void main(String[] args)
     {
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(new File("data/output.pos"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
         HMMParser pTrain = new HMMParser("data/train.pos");
         pTrain.parseTrainer();
         
@@ -39,7 +48,12 @@ public class Baseline
                 // Leave it as the bestOverallTag
             }
             
-            System.out.println(tag + " " + word);
+            try {
+                writer.write(tag + " " + word + "\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
     }
 }

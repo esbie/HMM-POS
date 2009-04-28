@@ -1,9 +1,10 @@
 HMMs FTW
 
 To run baseline system:
-java Baseline > data/output.pos
-java Scorer > whatever_file
-Outputs number of times a POS tag on top was mistaken for a POS tag on the left
+java Baseline
+java Scorer
+open scoring/score.html
+Outputs number of times a POS tag on the left was mistaken for a POS tag on the top
 
 Possible HMM implementation considerations:
 

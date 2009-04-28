@@ -1,0 +1,44 @@
+div {
+	font: 0.8em/1.5em Helvetica, Arial, sans-serif;
+}
+
+table {
+	font: 0.8em Helvetica, Arial, sans-serif;
+	width: 150em;
+	height: 150em;
+}
+
+td, th {
+	border: 2px solid #000;
+}
+
+td.self {
+	background-color: #cde4ff;
+}
+
+td.reallybad {
+	color: #c20000;
+	font-weight: bold;
+	font-style: italic;
+	background-color: #ffd1d7;
+}
+
+td.bad {
+	color: #f00;
+	font-weight: bold;
+	background-color: #ffd1d7;
+}
+
+td.prettybad {
+	color: #ff3d49;
+	font-weight: bold;
+	background-color: #ffd1d7;
+}
+
+td.normal {
+	color: #333;
+}
+
+td.zero {
+	color: #ccc;
+}
