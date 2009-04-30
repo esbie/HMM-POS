@@ -55,5 +55,12 @@ public class Baseline
                 System.exit(1);
             }
         }
+        
+        try {
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

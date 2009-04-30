@@ -45,7 +45,7 @@ public class Scorer
                 
                 // Get through the associated words
                 if(!testScanner.next().equals(outputScanner.next())) {
-                    outFile.write("ERROR: The words don't match!!");
+                    System.out.println("ERROR: The words don't match!!");
                 }
             }
             
@@ -55,6 +55,7 @@ public class Scorer
             outFile.write("<head>");
             outFile.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">");
             outFile.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">");
+            outFile.write("<title>Part of Speech Scoring</title>");
             outFile.write("</head>");
             outFile.write("<body>");
 
@@ -104,6 +105,8 @@ public class Scorer
 
             outFile.write("</body>");
             outFile.write("</html>");
+            
+            outFile.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
