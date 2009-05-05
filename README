@@ -1,13 +1,10 @@
-HMMs FTW
+For the Sequence-Tagging final project, we plan to implement a Hidden Markov Model part-of-speech tagger. Beginning with a standard Bigram HMM model, our goal is to implement algorithms of increasing level of complexity, as time permits.  This includes (but is not necessarily limited to) the Viterbi algorithm, trigram HMMs, and various smoothing techniques.  Our objective is to uncover which of these improvements gains the biggest increase in pos tagging performance. We will be implementing the algorithms from scratch, and have included the code for our baseline system. For each word, the baseline system predicts the most frequent tag associated with that word. If the word has not been seen in the training data, the most frequent tag overall is used for a guess.
 
 To run baseline system:
 java Baseline
 java Scorer
+(note: data must be placed in a folder named "data/" and called train.pos and test.pos)
 open scoring/score.html
-Outputs number of times a POS tag on the left was mistaken for a POS tag on the top
+The file score.html contains the percent correct as well as the number of times a POS tag on the left was chosen for a POS tag on the top (the correct tag in the test data)
 
-Possible HMM implementation considerations:
-
-Bigram or Trigram HMM model
-Smoothing (backoff?)
-Viterbi Algorithm
+Currently our baseline system performs at 91.951904% precision when trained on "train.pos" and tested on "test.pos".  The full report can be found in the attached score.html in the scoring directory.
