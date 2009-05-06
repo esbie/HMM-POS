@@ -20,7 +20,8 @@ public class HMM {
     HashMap<String, HashMap<String, Integer>> tagBigramCounts; 
     HashMap<String, HashMap<String, Integer>> tagForWordCounts;
     String mostFreqTag;
-    int vocabSize;
+    
+    final boolean ADDONE = true;
     
     public HMM(HMMParser p){
         this.tagCounts = p.tagCounts;
@@ -28,8 +29,6 @@ public class HMM {
         this.tagBigramCounts = p.tagBigramCounts;
         this.tagForWordCounts = p.tagForWordCounts;
         this.mostFreqTag = p.mostFreqTag;
-        
-        vocabSize = tagCounts.keySet().size() * tagForWordCounts.keySet().size();
     }
     
     //returns map[key]
@@ -46,14 +45,24 @@ public class HMM {
      * Calculates P(word|tag)
      */
     public double calcLikelihood(String tag, String word){
-        return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
+        if(ADDONE){
+            int vocabSize = tagForWordCounts.keySet().size();
+            return (double) (counts(wordCounts,tag,word)+1) / (double) (counts(tagCounts,tag)+vocabSize);
+        } else {
+            return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
+        }
     }
     
     /*
      * Calculates P(tag2|tag1) 
      */
     public double calcPriorProb(String tag1, String tag2){
-        return (double) counts(tagBigramCounts,tag1,tag2) / (double) counts(tagCounts,tag1);
+        if(ADDONE) {
+            int vocabSize = tagCounts.keySet().size();
+            return (double) (counts(tagBigramCounts,tag1,tag2)+1) / (double) (counts(tagCounts,tag1)+vocabSize);
+        } else {
+            return (double) counts(tagBigramCounts,tag1,tag2) / (double) counts(tagCounts,tag1);
+        }
     }
     
     public void viterbi(ArrayList<String> words){
@@ -80,16 +89,13 @@ public class HMM {
                 } else {
                     //never-before seen words
                     subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
-                    //TODO
-                    //should the vocabulary increase when we find a new word?
-                    //vocabSize += tagCounts.keySet().size();
                 }
                 
                 //QUIT!
                 if(word.equals(".")){
                     backtrace(subMap.get("."));
                     //TODO for testing
-                    //break;                    
+                    break;                    
                 }
             }
         }
