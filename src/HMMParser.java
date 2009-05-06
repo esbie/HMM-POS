@@ -63,6 +63,7 @@ public class HMMParser {
         return list;
     }
     
+    // performs map[key1]++;
     private void addOne(HashMap<String, Integer> map, String key1){
         if(map.containsKey(key1)){
             map.put(key1, map.get(key1)+1);
@@ -71,6 +72,7 @@ public class HMMParser {
         }       
     }   
     
+    // performs map[key1][key2]++;
     private void addOne(HashMap<String, HashMap<String, Integer>> map, String key1, String key2){
         if(map.containsKey(key1)){
             addOne(map.get(key1),key2);

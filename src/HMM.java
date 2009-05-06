@@ -20,6 +20,7 @@ public class HMM {
     HashMap<String, HashMap<String, Integer>> tagBigramCounts; 
     HashMap<String, HashMap<String, Integer>> tagForWordCounts;
     String mostFreqTag;
+    int vocabSize;
     
     public HMM(HMMParser p){
         this.tagCounts = p.tagCounts;
@@ -27,32 +28,32 @@ public class HMM {
         this.tagBigramCounts = p.tagBigramCounts;
         this.tagForWordCounts = p.tagForWordCounts;
         this.mostFreqTag = p.mostFreqTag;
+        
+        vocabSize = tagCounts.keySet().size() * tagForWordCounts.keySet().size();
+    }
+    
+    //returns map[key]
+    private int counts(HashMap<String, Integer> map, String key){
+        return (map.containsKey(key)) ? map.get(key) : 0;
+    }
+    
+    //returns map[key1][key2]
+    private int counts(HashMap<String, HashMap<String,Integer>> map, String key1, String key2){
+        return (map.containsKey(key1))? counts(map.get(key1), key2) : 0;
     }
     
     /*
      * Calculates P(word|tag)
      */
     public double calcLikelihood(String tag, String word){
-        if(wordCounts.containsKey(tag)){
-            HashMap<String, Integer> subMap = wordCounts.get(tag);
-            if(subMap.containsKey(word) && tagCounts.containsKey(tag)){
-                return  (double) subMap.get(word) / (double) tagCounts.get(tag);
-            }
-        }
-        return 0.0;
+        return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
     }
     
     /*
      * Calculates P(tag2|tag1) 
      */
     public double calcPriorProb(String tag1, String tag2){
-        if(tagBigramCounts.containsKey(tag1)){
-            HashMap<String, Integer> subMap = tagBigramCounts.get(tag1);
-            if(subMap.containsKey(tag2) && tagCounts.containsKey(tag1)){
-                return (double) subMap.get(tag2) / (double) tagCounts.get(tag1);
-            }
-        }
-        return 0.0;
+        return (double) counts(tagBigramCounts,tag1,tag2) / (double) counts(tagCounts,tag1);
     }
     
     public void viterbi(ArrayList<String> words){
@@ -79,6 +80,9 @@ public class HMM {
                 } else {
                     //never-before seen words
                     subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
+                    //TODO
+                    //should the vocabulary increase when we find a new word?
+                    //vocabSize += tagCounts.keySet().size();
                 }
                 
                 //QUIT!
@@ -121,6 +125,9 @@ public class HMM {
         return n;
     }
     
+    /*
+     * prints out the linked list of the correctly tagged words
+     */
     private void backtrace(Node n) {
         Stack<Node> stack = new Stack<Node>();
         while(n != null){
