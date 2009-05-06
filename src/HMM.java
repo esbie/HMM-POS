@@ -7,7 +7,7 @@ public class HMM {
     public static void main(String[] args){
         HMMParser p = new HMMParser("data/train.pos");
         p.parseTrainer();
-        HMM hmm = new HMM(p.tagCounts, p.wordCounts, p.tagBigramCounts, p.tagForWordCounts);
+        HMM hmm = new HMM(p);
         System.out.println("likelihood of 'NN' corresponding to 'agreement': "+ hmm.calcLikelihood("NN", "agreement"));
         System.out.println("prior probability of NN -> VBG: "+ hmm.calcPriorProb("NN", "VBG"));
         
@@ -19,17 +19,19 @@ public class HMM {
     HashMap<String, HashMap<String, Integer>> wordCounts;
     HashMap<String, HashMap<String, Integer>> tagBigramCounts; 
     HashMap<String, HashMap<String, Integer>> tagForWordCounts;
+    String mostFreqTag;
     
-    public HMM(HashMap<String, Integer> tagCounts,
-            HashMap<String, HashMap<String, Integer>> wordCounts,
-            HashMap<String, HashMap<String, Integer>> tagBigramCounts,
-            HashMap<String, HashMap<String, Integer>> tagForWordCounts){
-        this.tagCounts = tagCounts;
-        this.wordCounts = wordCounts;
-        this.tagBigramCounts = tagBigramCounts;
-        this.tagForWordCounts = tagForWordCounts;
+    public HMM(HMMParser p){
+        this.tagCounts = p.tagCounts;
+        this.wordCounts = p.wordCounts;
+        this.tagBigramCounts = p.tagBigramCounts;
+        this.tagForWordCounts = p.tagForWordCounts;
+        this.mostFreqTag = p.mostFreqTag;
     }
     
+    /*
+     * Calculates P(word|tag)
+     */
     public double calcLikelihood(String tag, String word){
         if(wordCounts.containsKey(tag)){
             HashMap<String, Integer> subMap = wordCounts.get(tag);
@@ -40,6 +42,9 @@ public class HMM {
         return 0.0;
     }
     
+    /*
+     * Calculates P(tag2|tag1) 
+     */
     public double calcPriorProb(String tag1, String tag2){
         if(tagBigramCounts.containsKey(tag1)){
             HashMap<String, Integer> subMap = tagBigramCounts.get(tag1);
@@ -65,8 +70,7 @@ public class HMM {
             } else {
                 HashMap<String, Node> prevMap = list.get(i-1);
                 //add all possible tags (given the current word)
-                //to the Viterbi matrix
-                
+                //to the Viterbi matrix                
                 if(tagForWordCounts.containsKey(word)){
                     HashMap<String, Integer> tagcounts = tagForWordCounts.get(word);
                     for(String tag : tagcounts.keySet()){
@@ -74,8 +78,7 @@ public class HMM {
                     }
                 } else {
                     //never-before seen words
-                    //TODO: for now, hardcoding most frequent tag
-                    subMap.put("NN", calcNode(word, "NN", prevMap));
+                    subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
                 }
                 
                 //QUIT!
