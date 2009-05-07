@@ -77,20 +77,18 @@ public class HMM {
     
     public void viterbi(ArrayList<String> words){
         //two-dimensional Viterbi Matrix
-        ArrayList<HashMap<String, Node>> list = new ArrayList<HashMap<String, Node>>();
         boolean sentenceStart = true;
+        HashMap<String, Node> prevMap = null;
         for(int i=0; i<words.size(); i++){
             System.out.println("working on "+i+" of "+words.size()+" words");
             String word = words.get(i);
             HashMap<String, Node> subMap = new HashMap<String,Node>();
-            list.add(i, subMap);
             
             if(sentenceStart){
                 Node n = new Node(word, "<s>", null, 1.0);
                 subMap.put(word, n);
                 sentenceStart = false;
             } else {
-                HashMap<String, Node> prevMap = list.get(i-1);
                 //add all possible tags (given the current word)
                 //to the Viterbi matrix                
                 if(tagForWordCounts.containsKey(word)){
@@ -108,6 +106,7 @@ public class HMM {
                     sentenceStart = true;
                 }
             }
+            prevMap = subMap;
         }
         try {
             writer.close();
