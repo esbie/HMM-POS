@@ -80,7 +80,9 @@ public class HMM {
         boolean sentenceStart = true;
         HashMap<String, Node> prevMap = null;
         for(int i=0; i<words.size(); i++){
-            System.out.println("working on "+i+" of "+words.size()+" words");
+            if (i%500==0) {
+                System.out.println("working on "+i+" of "+words.size()+" words");
+            }
             String word = words.get(i);
             HashMap<String, Node> subMap = new HashMap<String,Node>();
             
@@ -98,7 +100,9 @@ public class HMM {
                     }
                 } else {
                     //never-before seen words
-                    subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
+                    //subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
+                    Node newNode = calcUnseenWordNode(word, prevMap);
+                    subMap.put(newNode.tag, newNode);
                 }
                 
                 if((i == words.size()-1) || words.get(i+1).equals("<s>")){
@@ -143,6 +147,40 @@ public class HMM {
         //this is the state observation likelihood
         n.prob = maxProb * calcLikelihood(tag, word);
         return n;
+    }
+    
+    private Node calcUnseenWordNode(String word, HashMap<String, Node> prevMap) {
+        double maxProb = 0.0;
+        String bestTag = "NOTAG";
+        Node bestParent = null;
+        for (String prevTag : prevMap.keySet()) {
+            Node prevNode = prevMap.get(prevTag);
+            // Previous Viterbi path probability
+            double prevProb = prevNode.prob;
+            
+            // Find the best transition given the previous tag
+            HashMap<String, Integer> possibleTagMap = tagBigramCounts.get(prevTag);
+            int maxCount = 0;
+            String nextTag = "NOTAG";
+            for (String possibleTag : possibleTagMap.keySet()) {
+                if (possibleTagMap.get(possibleTag)>maxCount) {
+                    maxCount = possibleTagMap.get(possibleTag);
+                    nextTag = possibleTag;
+                }
+            }
+            
+            // Transition probability
+            prevProb *= calcPriorProb(prevTag, nextTag);
+            
+            // Check if we have the best tag
+            if (prevProb >= maxProb) {
+                maxProb = prevProb;
+                bestTag = nextTag;
+                bestParent = prevNode;
+            }
+        }
+        // Return node with prob as state observation likelihood
+        return new Node(word, bestTag, bestParent, maxProb*calcLikelihood(bestTag, word));
     }
     
     /*
