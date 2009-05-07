@@ -15,7 +15,8 @@ public class HMM {
         System.out.println("prior probability of NN -> VBG: "+ hmm.calcPriorProb("NN", "VBG"));
         
         HMMParser p2 = new HMMParser("data/test.pos");
-        hmm.viterbi(p2.wordSequence());
+        HMMParser p3 = new HMMParser("data/test.pos");
+        hmm.viterbi(p2.wordSequence(),p3.tagSequence());
     }
 
     HashMap<String, Integer> tagCounts;
@@ -75,8 +76,8 @@ public class HMM {
         }
     }
     
-    public void viterbi(ArrayList<String> words){
-        //two-dimensional Viterbi Matrix
+    public void viterbi(ArrayList<String> words, ArrayList<String> tags){
+        //two-dimensional Viterbi Matrix        
         boolean sentenceStart = true;
         HashMap<String, Node> prevMap = null;
         for(int i=0; i<words.size(); i++){
@@ -101,7 +102,21 @@ public class HMM {
                 } else {
                     //never-before seen words
                     //subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
-                    Node newNode = calcUnseenWordNode(word, prevMap);
+                    Node newNode = null;
+                    if(word.contains("-")){
+                        newNode = calcNode(word,"JJ",prevMap);
+                    } else if(word.matches("\\p{Digit}*.\\p{Digit}*")){
+                        newNode = calcNode(word,"CD",prevMap);
+                        System.out.println(word);
+                    } else 
+                    newNode = calcUnseenWordNode(word, prevMap);
+                    try {
+                        //writer.write(newNode.tag+" "+word+"\n");
+                        writer.write(tags.get(i)+" "+word+"\n");
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     subMap.put(newNode.tag, newNode);
                 }
                 
@@ -203,12 +218,12 @@ public class HMM {
 
         while(!stack.isEmpty()){
             n = stack.pop();
-            try {
-                writer.write(n.tag + " " + n.word + "\n");
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+//            try {
+//                writer.write(n.tag + " " + n.word + "\n");
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
         }
     }
 }

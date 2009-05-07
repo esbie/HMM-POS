@@ -1,4 +1,4 @@
 *.class
 data/*
-scoring/score.html
+scoring/*.html
 

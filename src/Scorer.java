@@ -12,8 +12,8 @@ public class Scorer
         
         HashMap<String, HashMap<String, Integer>> tagChosenForTag = new HashMap<String, HashMap<String, Integer>>();
         
-        File testFile = new File("data/test.pos");
-        File outputFile = new File("data/output.pos");
+        File testFile = new File("data/output2.pos");
+        File outputFile = new File("data/output1.pos");
         FileWriter outFile;
         try {
             outFile = new FileWriter(new File("scoring/score.html"));

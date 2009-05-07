@@ -63,6 +63,15 @@ public class HMMParser {
         return list;
     }
     
+    public ArrayList<String> tagSequence(){
+        ArrayList<String> list = new ArrayList<String>();
+        while (scanner.hasNext()){
+            list.add(scanner.next());
+            scanner.next();
+        }
+        return list;
+    }
+    
     // performs map[key1]++;
     private void addOne(HashMap<String, Integer> map, String key1){
         if(map.containsKey(key1)){
