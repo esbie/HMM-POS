@@ -23,7 +23,9 @@ public class Scorer
             
             String testPOS;
             String outputPOS;
+            int i = 0;
             while (testScanner.hasNext() && outputScanner.hasNext()) {
+                i++;
                 testPOS = testScanner.next();
                 outputPOS = outputScanner.next();
                 
@@ -44,8 +46,10 @@ public class Scorer
                 tagChosenForTag.get(testPOS).put(outputPOS, tagChosenForTag.get(testPOS).get(outputPOS)+1);
                 
                 // Get through the associated words
-                if(!testScanner.next().equals(outputScanner.next())) {
-                    System.out.println("ERROR: The words don't match!!");
+                String testWord = testScanner.next();
+                String outputWord = outputScanner.next();
+                if(!testWord.equals(outputWord)) {
+                    System.out.println("line "+i+" ERROR: "+testWord+" does not match "+outputWord);
                 }
             }
             

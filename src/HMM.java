@@ -1,3 +1,6 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -20,6 +23,7 @@ public class HMM {
     HashMap<String, HashMap<String, Integer>> tagBigramCounts; 
     HashMap<String, HashMap<String, Integer>> tagForWordCounts;
     String mostFreqTag;
+    FileWriter writer;
     
     final boolean ADDONE = true;
     
@@ -29,6 +33,12 @@ public class HMM {
         this.tagBigramCounts = p.tagBigramCounts;
         this.tagForWordCounts = p.tagForWordCounts;
         this.mostFreqTag = p.mostFreqTag;
+        try {
+            writer = new FileWriter(new File("data/output.pos"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }        
     }
     
     //returns map[key]
@@ -68,15 +78,17 @@ public class HMM {
     public void viterbi(ArrayList<String> words){
         //two-dimensional Viterbi Matrix
         ArrayList<HashMap<String, Node>> list = new ArrayList<HashMap<String, Node>>();
-        
+        boolean sentenceStart = true;
         for(int i=0; i<words.size(); i++){
+            System.out.println("working on "+i+" of "+words.size()+" words");
             String word = words.get(i);
             HashMap<String, Node> subMap = new HashMap<String,Node>();
             list.add(i, subMap);
             
-            if(word.equals("<s>")){
+            if(sentenceStart){
                 Node n = new Node(word, "<s>", null, 1.0);
                 subMap.put(word, n);
+                sentenceStart = false;
             } else {
                 HashMap<String, Node> prevMap = list.get(i-1);
                 //add all possible tags (given the current word)
@@ -91,15 +103,18 @@ public class HMM {
                     subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
                 }
                 
-                //QUIT!
-                if(word.equals(".")){
-                    backtrace(subMap.get("."));
-                    //TODO for testing
-                    break;                    
+                if((i == words.size()-1) || words.get(i+1).equals("<s>")){
+                    backtrace(subMap);
+                    sentenceStart = true;
                 }
             }
         }
-        
+        try {
+            writer.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /* This method computes the probability that String tag
@@ -134,16 +149,29 @@ public class HMM {
     /*
      * prints out the linked list of the correctly tagged words
      */
-    private void backtrace(Node n) {
+    private void backtrace(HashMap<String, Node> map) {
+        Node n = new Node("NOMAX", "NOMAX");
+        for(String key : map.keySet()){
+            Node currentNode = map.get(key);
+            if(currentNode.prob >= n.prob){
+                n = currentNode;
+            }
+        }
+        
         Stack<Node> stack = new Stack<Node>();
         while(n != null){
             stack.push(n);
             n = n.parent;
         }
-        
+
         while(!stack.isEmpty()){
             n = stack.pop();
-            System.out.println(n.tag + " " + n.word);
+            try {
+                writer.write(n.tag + " " + n.word + "\n");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 }
