@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -10,7 +11,7 @@ public class Scorer
         int agreeCount = 0;
         int disagreeCount = 0;
         
-        HashMap<String, HashMap<String, Integer>> tagChosenForTag = new HashMap<String, HashMap<String, Integer>>();
+        HashMap<String, HashMap<String, ArrayList<String>>> tagChosenForTag = new HashMap<String, HashMap<String, ArrayList<String>>>();
         
         File testFile = new File("data/test.pos");
         File outputFile = new File("data/output.pos");
@@ -26,8 +27,13 @@ public class Scorer
             int i = 0;
             while (testScanner.hasNext() && outputScanner.hasNext()) {
                 i++;
+                // Get the parts of speech
                 testPOS = testScanner.next();
                 outputPOS = outputScanner.next();
+                
+                // Get the associated words
+                String testWord = testScanner.next();
+                String outputWord = outputScanner.next();
                 
                 // Count agreement and disagreement
                 if (testPOS.equals(outputPOS)) {
@@ -38,16 +44,14 @@ public class Scorer
                 
                 // Count which tag is mistaken for which
                 if (!tagChosenForTag.containsKey(testPOS)) {
-                    tagChosenForTag.put(testPOS, new HashMap<String, Integer>());
+                    tagChosenForTag.put(testPOS, new HashMap<String, ArrayList<String>>());
                 }
                 if (!tagChosenForTag.get(testPOS).containsKey(outputPOS)) {
-                    tagChosenForTag.get(testPOS).put(outputPOS, 0);
+                    tagChosenForTag.get(testPOS).put(outputPOS, new ArrayList<String>());
                 }
-                tagChosenForTag.get(testPOS).put(outputPOS, tagChosenForTag.get(testPOS).get(outputPOS)+1);
+                tagChosenForTag.get(testPOS).get(outputPOS).add(testWord);
+                //tagChosenForTag.get(testPOS).put(outputPOS, tagChosenForTag.get(testPOS).get(outputPOS)+1);
                 
-                // Get through the associated words
-                String testWord = testScanner.next();
-                String outputWord = outputScanner.next();
                 if(!testWord.equals(outputWord)) {
                     System.out.println("line "+i+" ERROR: "+testWord+" does not match "+outputWord);
                 }
@@ -88,7 +92,8 @@ public class Scorer
                 for (String outputTag : p.tagCounts.keySet()) {
                     String htmlClass = " class='normal'";
                     if (tagChosenForTag.containsKey(testTag) && tagChosenForTag.get(testTag).containsKey(outputTag)) {
-                        int num = tagChosenForTag.get(testTag).get(outputTag);
+                        ArrayList<String> list = tagChosenForTag.get(testTag).get(outputTag);
+                        int num = list.size();
                         if (testTag.equals(outputTag)) {
                             htmlClass = " class='self'";
                         } else if (num > 1000) {
@@ -98,7 +103,11 @@ public class Scorer
                         } else if (num > 100) {
                             htmlClass = " class='prettybad'";
                         }
-                        outFile.write("<td"+htmlClass+">"+num+"</td>");
+                        outFile.write("<td"+htmlClass+" onclick='if(this.childNodes[1].style.display===\"none\"){this.childNodes[1].style.display=\"block\"}else{this.childNodes[1].style.display=\"none\"}'>"+num+"<div style='display:none'>");
+                        for (String item : list) {
+                            outFile.write(item + ", ");
+                        }
+                        outFile.write("</div></td>");
                     } else {
                         outFile.write("<td class='zero'>0</td>");
                     }

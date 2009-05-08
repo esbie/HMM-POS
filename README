@@ -5,6 +5,6 @@ java Baseline
 java Scorer
 (note: data must be placed in a folder named "data/" and called train.pos and test.pos)
 open scoring/score.html
-The file score.html contains the percent correct as well as the number of times a POS tag on the left was chosen for a POS tag on the top (the correct tag in the test data)
+The file score.html contains the percent correct as well as the number of times a POS tag on the top was chosen for a POS tag on the left (the correct tag in the test data). That is, the left tags were guessed as the top tags.
 
 Currently our baseline system performs at 91.951904% precision when trained on "train.pos" and tested on "test.pos".  The full report can be found in the attached score.html in the scoring directory.

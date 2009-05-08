@@ -98,8 +98,20 @@ public class HMM {
                     for(String tag : tagcounts.keySet()){
                         subMap.put(tag, calcNode(word, tag, prevMap));               
                     }
+                } else if (word.matches("[A-Z]\\w*")) {
+                    subMap.put("NNP", calcNode(word, "NNP", prevMap));
+                } else if (word.contains("-")) {
+                    subMap.put("JJ", calcNode(word, "JJ", prevMap));
+                } else if (word.matches("\\p{Digit}*.\\p{Digit}*")) {
+                    subMap.put("CD", calcNode(word, "CD", prevMap));
+                } else if (word.matches(".*ing")) {
+                    subMap.put("VBG", calcNode(word, "VBG", prevMap));
+                } else if (word.matches(".*ly")) {
+                    subMap.put("RB", calcNode(word, "RB", prevMap));
+                } else if (word.matches(".*s")) {
+                    subMap.put("NNS", calcNode(word, "NNS", prevMap));
                 } else {
-                    //never-before seen words
+                    //never-before seen words we can't guess for
                     //subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
                     Node newNode = calcUnseenWordNode(word, prevMap);
                     subMap.put(newNode.tag, newNode);
