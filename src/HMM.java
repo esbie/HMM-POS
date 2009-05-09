@@ -100,14 +100,16 @@ public class HMM {
                     }
                 } else if (word.matches("[A-Z]\\w*")) {
                     subMap.put("NNP", calcNode(word, "NNP", prevMap));
-                } else if (word.contains("-")) {
-                    subMap.put("JJ", calcNode(word, "JJ", prevMap));
-                } else if (word.matches("\\p{Digit}*.\\p{Digit}*")) {
+                } else if (word.matches("\\p{Digit}*.\\p{Digit}*") || word.matches("(\\p{Punct}+|\\p{Digit}+)+")) {
                     subMap.put("CD", calcNode(word, "CD", prevMap));
+                } else if (word.contains("-") || word.matches(".*able")) {
+                    subMap.put("JJ", calcNode(word, "JJ", prevMap));
                 } else if (word.matches(".*ing")) {
                     subMap.put("VBG", calcNode(word, "VBG", prevMap));
                 } else if (word.matches(".*ly")) {
                     subMap.put("RB", calcNode(word, "RB", prevMap));
+                } else if (word.matches(".*ed")) {
+                    subMap.put("VBN", calcNode(word, "VBN", prevMap));
                 } else if (word.matches(".*s")) {
                     subMap.put("NNS", calcNode(word, "NNS", prevMap));
                 } else {
