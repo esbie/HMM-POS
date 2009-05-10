@@ -21,6 +21,7 @@ public class HMMParser {
     HashMap<String, HashMap<String, Integer>> tagForWordCounts = new HashMap<String, HashMap<String, Integer>>();
     String mostFreqTag = "";
     int mostFreqTagCount = 0;
+    int numTrainingBigrams = 0;
     
     
     public HMMParser(String filename){
@@ -49,6 +50,8 @@ public class HMMParser {
                 mostFreqTagCount = tagCounts.get(currentTag);
                 mostFreqTag = currentTag;
             }
+            
+            numTrainingBigrams++;
             
             prevTag = currentTag;
         }

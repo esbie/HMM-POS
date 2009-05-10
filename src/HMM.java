@@ -22,10 +22,16 @@ public class HMM {
     HashMap<String, HashMap<String, Integer>> wordCounts;
     HashMap<String, HashMap<String, Integer>> tagBigramCounts; 
     HashMap<String, HashMap<String, Integer>> tagForWordCounts;
+    HashMap<String, HashMap<String, Double>> goodTuringTagBigramCounts;
+    HashMap<String, Double> goodTuringTagUnigramCounts;
+    HashMap<Integer, Integer> numberOfBigramsWithCount;
+    boolean goodTuringCountsAvailable = false;
+    int numTrainingBigrams;
     String mostFreqTag;
     FileWriter writer;
     
     final boolean ADDONE = true;
+    final boolean GOODTURING = false;
     
     public HMM(HMMParser p){
         this.tagCounts = p.tagCounts;
@@ -33,6 +39,11 @@ public class HMM {
         this.tagBigramCounts = p.tagBigramCounts;
         this.tagForWordCounts = p.tagForWordCounts;
         this.mostFreqTag = p.mostFreqTag;
+        
+        this.goodTuringTagBigramCounts = new HashMap<String, HashMap<String, Double>>();
+        this.goodTuringTagUnigramCounts = new HashMap<String, Double>();
+        this.numberOfBigramsWithCount = new HashMap<Integer, Integer>();
+        this.numTrainingBigrams = p.numTrainingBigrams;
         try {
             writer = new FileWriter(new File("data/output.pos"));
         } catch (Exception e) {
@@ -51,6 +62,57 @@ public class HMM {
         return (map.containsKey(key1))? counts(map.get(key1), key2) : 0;
     }
     
+    //returns map[key]
+    private double counts(HashMap<String, Double> map, String key){
+        return (map.containsKey(key)) ? map.get(key) : 0.0;
+    }
+    
+    //returns map[key1][key2]
+    private double counts(HashMap<String, HashMap<String,Double>> map, String key1, String key2){
+        return (map.containsKey(key1))? counts(map.get(key1), key2) : 0.0;
+    }
+    
+    private int numberOfBigramsWithCount(int count){
+        if (numberOfBigramsWithCount.containsKey(count)) {
+            return numberOfBigramsWithCount.get(count);
+        } else {
+            return 0;
+        }
+    }
+    
+    private void makeGoodTuringCounts(){
+        // Fill numberOfBigramsWithCount
+        for (String tag1 : tagBigramCounts.keySet()) {
+            HashMap<String, Integer> innerMap = tagBigramCounts.get(tag1);
+            for (String tag2 : innerMap.keySet()) {
+                int count = innerMap.get(tag2);
+                if (numberOfBigramsWithCount.containsKey(count)) {
+                    numberOfBigramsWithCount.put(count, 1+numberOfBigramsWithCount.get(count));
+                } else {
+                    numberOfBigramsWithCount.put(count, 1);
+                }
+            }
+        }
+        
+        // Fill goodTuringTagBigramCounts
+        for (String tag1 : tagBigramCounts.keySet()) {
+            HashMap<String, Integer> innerMap = tagBigramCounts.get(tag1);
+            HashMap<String, Double> innerGTMap = new HashMap<String, Double>();
+            goodTuringTagBigramCounts.put(tag1, innerGTMap);
+            
+            double unigramCount = 0;
+            for (String tag2 : innerMap.keySet()) {
+                int count = innerMap.get(tag2);
+                // c* = (c+1) * N(c+1) / N(c)
+                double newCount = ((double)count+1.0)*((double)numberOfBigramsWithCount(count+1))/((double)numberOfBigramsWithCount(count));
+                innerGTMap.put(tag2, newCount);
+                unigramCount += newCount;
+            }
+            goodTuringTagUnigramCounts.put(tag1, unigramCount);
+        }
+        goodTuringCountsAvailable = true;
+    }
+    
     /*
      * Calculates P(word|tag)
      */
@@ -58,6 +120,8 @@ public class HMM {
         if(ADDONE){
             int vocabSize = tagForWordCounts.keySet().size();
             return (double) (counts(wordCounts,tag,word)+1) / (double) (counts(tagCounts,tag)+vocabSize);
+        } else if(GOODTURING) {
+            return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
         } else {
             return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
         }
@@ -70,6 +134,19 @@ public class HMM {
         if(ADDONE) {
             int vocabSize = tagCounts.keySet().size();
             return (double) (counts(tagBigramCounts,tag1,tag2)+1) / (double) (counts(tagCounts,tag1)+vocabSize);
+        } else if(GOODTURING) {
+            if(!goodTuringCountsAvailable) {
+                System.out.println("Making good turing counts...");
+                makeGoodTuringCounts();
+                System.out.println("Done making good turing counts.");
+            }
+            double gtcount = counts(goodTuringTagBigramCounts, tag1, tag2);
+            // If this bigram has occurred, return good turing probability
+            if (gtcount > 0.0) {
+                return gtcount / counts(goodTuringTagUnigramCounts, tag1);
+            }
+            // Otherwise, return N1/N as per book (page 101)
+            return numberOfBigramsWithCount(1) / (double)numTrainingBigrams;
         } else {
             return (double) counts(tagBigramCounts,tag1,tag2) / (double) counts(tagCounts,tag1);
         }
