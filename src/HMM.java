@@ -121,7 +121,7 @@ public class HMM {
             int vocabSize = tagForWordCounts.keySet().size();
             return (double) (counts(wordCounts,tag,word)+1) / (double) (counts(tagCounts,tag)+vocabSize);
         } else if(GOODTURING) {
-            return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
+            return (double) counts(wordCounts,tag,word) / (double) counts(goodTuringTagUnigramCounts,tag);
         } else {
             return (double) counts(wordCounts,tag,word) / (double) counts(tagCounts,tag);
         }
@@ -171,10 +171,16 @@ public class HMM {
                 //add all possible tags (given the current word)
                 //to the Viterbi matrix                
                 if(tagForWordCounts.containsKey(word)){
+                    // Only Training Set tags
                     HashMap<String, Integer> tagcounts = tagForWordCounts.get(word);
                     for(String tag : tagcounts.keySet()){
                         subMap.put(tag, calcNode(word, tag, prevMap));               
                     }
+                    
+                    // Every Tag
+                    //for(String tag : tagCounts.keySet()){
+                    //    subMap.put(tag, calcNode(word, tag, prevMap));               
+                    //}
                 } else if (word.matches("[A-Z]\\w*")) {
                     subMap.put("NNP", calcNode(word, "NNP", prevMap));
                 } else if (word.matches("\\p{Digit}*.\\p{Digit}*") || word.matches("(\\p{Punct}+|\\p{Digit}+)+")) {
@@ -190,10 +196,19 @@ public class HMM {
                 } else if (word.matches(".*s")) {
                     subMap.put("NNS", calcNode(word, "NNS", prevMap));
                 } else {
-                    //never-before seen words we can't guess for
+                    //never-before seen words we can't guess for morphologically
+                    
+                    // Most frequent tag
                     //subMap.put(mostFreqTag, calcNode(word, mostFreqTag, prevMap));
-                    Node newNode = calcUnseenWordNode(word, prevMap);
-                    subMap.put(newNode.tag, newNode);
+                    
+                    // Last-Tag's-Best Guessing
+                    //Node newNode = calcUnseenWordNode(word, prevMap);
+                    //subMap.put(newNode.tag, newNode);
+                    
+                    // Every-Tag Guessing
+                    for (String tag : tagCounts.keySet()) {
+                        subMap.put(tag, calcNode(word, tag, prevMap));
+                    }
                 }
                 
                 if((i == words.size()-1) || words.get(i+1).equals("<s>")){
