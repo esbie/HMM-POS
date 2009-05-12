@@ -1,10 +1,25 @@
-For the Sequence-Tagging final project, we plan to implement a Hidden Markov Model part-of-speech tagger. Beginning with a standard Bigram HMM model, our goal is to implement algorithms of increasing level of complexity, as time permits.  This includes (but is not necessarily limited to) the Viterbi algorithm, trigram HMMs, and various smoothing techniques.  Our objective is to uncover which of these improvements gains the biggest increase in pos tagging performance. We will be implementing the algorithms from scratch, and have included the code for our baseline system. For each word, the baseline system predicts the most frequent tag associated with that word. If the word has not been seen in the training data, the most frequent tag overall is used for a guess.
+For the Sequence-Tagging final project, we implemented a Hidden Markov Model
+part-of-speech tagger. We implemented the algorithms from scratch, and have
+included the code for our system. For the description of the system, see the
+report.
 
 To run baseline system:
 java Baseline
 java Scorer
-(note: data must be placed in a folder named "data/" and called train.pos and test.pos)
+(note: data must be placed in the data folder and be called train.pos/test.pos)
 open scoring/score.html
-The file score.html contains the percent correct as well as the number of times a POS tag on the top was chosen for a POS tag on the left (the correct tag in the test data). That is, the left tags were guessed as the top tags.
 
-Currently our baseline system performs at 91.951904% precision when trained on "train.pos" and tested on "test.pos".  The full report can be found in the attached score.html in the scoring directory.
+To run HMM system:
+java HMM
+java Scorer
+(note: data must be placed in the data folder and be called train.pos/test.pos)
+open scoring/score.html
+
+The file scoring/score.html contains the percent correct as well as the number
+of times a POS tag on the top was chosen for a POS tag on the left (the correct
+tag in the test data). That is, the left tags were guessed as the top tags.
+To see the words that contributed to the number in a particular box, click the
+box to toggle the word list.
+
+Each score-*.html file is the score file for that particular configuration of
+the HMM system. Refer to the report for a description of each.
